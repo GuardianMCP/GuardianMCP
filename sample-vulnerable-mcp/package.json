@@ -1,0 +1,10 @@
+{
+  "name": "vulnerable-mcp-demo",
+  "version": "1.0.0",
+  "description": "Intentionally vulnerable MCP server for testing GuardianMCP scanner",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "mcp-remote": "1.0.3",
+    "pg": "^8.11.0"
+  }
+}

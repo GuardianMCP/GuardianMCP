@@ -6,8 +6,8 @@ const { join } = require("path");
 const https = require("https");
 const http = require("http");
 
-const VERSION = "0.1.1";
-const REPO = "seenasingh30/guardianmcp";
+const VERSION = "0.1.3";
+const REPO = "GuardianMCP/GuardianMCP";
 
 const PLATFORM_MAP = {
   darwin: "darwin",
@@ -32,7 +32,7 @@ function getBinaryName() {
   }
 
   const ext = process.platform === "win32" ? ".exe" : "";
-  return `guardianmcp_${platform}_${arch}${ext}`;
+  return `guardianmcp-${platform}-${arch}${ext}`;
 }
 
 function getBinaryPath() {
