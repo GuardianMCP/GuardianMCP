@@ -1,5 +1,5 @@
 {
-  "name": "guardianmcp",
+  "name": "@seenasingh30/guardianmcp",
   "version": "0.1.0",
   "description": "MCP Security Scanner — find vulnerabilities in MCP servers",
   "bin": {

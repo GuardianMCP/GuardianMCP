@@ -64,13 +64,13 @@ guardianmcp v0.1.0 — scanning .
 ### Scan with the CLI (no install needed)
 
 ```bash
-npx guardianmcp scan .
+npx @seenasingh30/guardianmcp scan .
 ```
 
 ### Or install globally
 
 ```bash
-npm install -g guardianmcp
+npm install -g @seenasingh30/guardianmcp
 guardianmcp scan ./my-mcp-server
 ```
 
@@ -224,7 +224,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npx guardianmcp scan . --severity high --exit-code
+      - run: npx @seenasingh30/guardianmcp scan . --severity high --exit-code
 ```
 
 ---
