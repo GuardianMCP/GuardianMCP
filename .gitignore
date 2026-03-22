@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+*.exe
+cli/guardianmcp
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+*.test
+coverage.out
+*.prof
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Docker volumes
+pgdata/
+redisdata/
+
+# Reports (generated)
+guardianmcp-report.html
+
+# Terraform/CDK
+cdk.out/
+./mcp-scanner-requirements.md
+
+# Claude Code
+.claude/
+cli/mcpscan

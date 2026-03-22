@@ -1,0 +1,26 @@
+# GuardianMCP Configuration
+# Documentation: https://guardianmcp.dev/docs/config
+
+# Severity filter: only report findings at or above this level
+min-severity: LOW
+
+# Patterns to ignore (glob format)
+ignore:
+  - "node_modules/**"
+  - "vendor/**"
+  - "dist/**"
+  - "build/**"
+  - "*.min.js"
+  - "**/*.test.*"
+  - "**/*.spec.*"
+
+# Rules to disable (by rule ID)
+disable-rules: []
+
+# Output format: terminal, json, html
+format: terminal
+
+# Dashboard integration (optional)
+# api-url: https://app.guardianmcp.dev
+# api-key: gmcp_live_xxxxx
+# server-id: your-server-uuid

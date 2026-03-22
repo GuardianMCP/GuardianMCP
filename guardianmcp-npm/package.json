@@ -1,0 +1,28 @@
+{
+  "name": "guardianmcp",
+  "version": "0.1.0",
+  "description": "MCP Security Scanner — find vulnerabilities in MCP servers",
+  "bin": {
+    "guardianmcp": "bin/guardianmcp.js"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "keywords": [
+    "mcp",
+    "security",
+    "scanner",
+    "vulnerability",
+    "owasp",
+    "guardianmcp"
+  ],
+  "author": "GuardianMCP",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guardianmcp/guardianmcp"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
