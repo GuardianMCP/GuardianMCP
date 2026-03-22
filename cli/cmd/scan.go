@@ -5,10 +5,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/briandowns/spinner"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/guardianmcp/guardianmcp/internal/config"
 	"github.com/guardianmcp/guardianmcp/internal/reporter"
 	"github.com/guardianmcp/guardianmcp/internal/scanner"
 	"github.com/guardianmcp/guardianmcp/internal/scanner/rules"
+	"github.com/guardianmcp/guardianmcp/internal/updater"
 	"github.com/guardianmcp/guardianmcp/internal/uploader"
 	"github.com/spf13/cobra"
 )
@@ -92,8 +95,34 @@ func runScan(cmd *cobra.Command, args []string) error {
 	allRules := rules.DefaultRules()
 	enabledRules := filterRules(allRules, cfg.Scan.Rules)
 
-	if !quiet {
+	isTerminal := formatFlag == "terminal" || formatFlag == ""
+
+	// Check for updates in background
+	type updateResult struct {
+		latest string
+		url    string
+	}
+	updateCh := make(chan updateResult, 1)
+	go func() {
+		latest, url := updater.CheckForUpdate(version)
+		updateCh <- updateResult{latest, url}
+	}()
+
+	// Banner
+	if !quiet && isTerminal {
+		printBanner(scanPath)
+	} else if !quiet {
 		fmt.Fprintf(os.Stderr, "guardianmcp v%s — scanning %s\n\n", version, scanPath)
+	}
+
+	// Start spinner
+	var sp *spinner.Spinner
+	if !quiet && isTerminal && !noColor {
+		sp = spinner.New(spinner.CharSets[14], 80*time.Millisecond)
+		sp.Prefix = "  "
+		sp.Suffix = " Scanning files..."
+		sp.Color("cyan")
+		sp.Start()
 	}
 
 	// Create and run scanner
@@ -108,6 +137,9 @@ func runScan(cmd *cobra.Command, args []string) error {
 	start := time.Now()
 	result, err := s.Scan()
 	if err != nil {
+		if sp != nil {
+			sp.Stop()
+		}
 		return fmt.Errorf("scan failed: %w", err)
 	}
 
@@ -118,6 +150,17 @@ func runScan(cmd *cobra.Command, args []string) error {
 	result.RulesChecked = len(enabledRules)
 	result.SecurityScore = scanner.CalculateSecurityScore(result.Findings)
 	result.Summary = scanner.CalculateSummary(result.Findings)
+
+	// Stop spinner
+	if sp != nil {
+		sp.Stop()
+		fmt.Fprint(os.Stderr, "\r\033[K") // Clear spinner line
+	}
+
+	// Analyzing animation
+	if !quiet && isTerminal && !noColor {
+		analyzeAnim(result)
+	}
 
 	// Filter findings by minimum severity
 	result.Findings = filterBySeverity(result.Findings, minSeverity)
@@ -177,12 +220,63 @@ func runScan(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// Show update notice if available
+	select {
+	case res := <-updateCh:
+		if res.latest != "" && !quiet {
+			updater.PrintUpdateNotice(version, res.latest)
+		}
+	default:
+	}
+
 	// Exit with code 1 if findings above threshold and --exit-code set
 	if exitCodeFlag && hasFindings(result.Findings, minSeverity) {
 		os.Exit(1)
 	}
 
 	return nil
+}
+
+func printBanner(scanPath string) {
+	logo := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#38bdf8")).
+		Bold(true)
+
+	dim := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#6b7280"))
+
+	fmt.Fprintf(os.Stderr, "\n")
+	fmt.Fprintf(os.Stderr, "  %s %s\n", logo.Render("⛨ guardianmcp"), dim.Render("v"+version))
+	fmt.Fprintf(os.Stderr, "  %s\n\n", dim.Render("Security scanner for MCP servers"))
+	fmt.Fprintf(os.Stderr, "  %s %s\n", dim.Render("Target:"), scanPath)
+}
+
+func analyzeAnim(result *scanner.ScanResult) {
+	dim := lipgloss.NewStyle().Foreground(lipgloss.Color("#6b7280"))
+	green := lipgloss.NewStyle().Foreground(lipgloss.Color("#16a34a"))
+
+	steps := []struct {
+		label string
+		delay time.Duration
+	}{
+		{"Discovered %d files", 200 * time.Millisecond},
+		{"Running %d security rules", 150 * time.Millisecond},
+		{"Analysis complete", 100 * time.Millisecond},
+	}
+
+	values := []int{result.FilesScanned, result.RulesChecked, 0}
+
+	for i, step := range steps {
+		var msg string
+		if i < 2 {
+			msg = fmt.Sprintf(step.label, values[i])
+		} else {
+			msg = step.label
+		}
+		fmt.Fprintf(os.Stderr, "  %s %s\n", green.Render("✓"), dim.Render(msg))
+		time.Sleep(step.delay)
+	}
+	fmt.Fprintln(os.Stderr)
 }
 
 func filterBySeverity(findings []scanner.Finding, minSeverity scanner.Severity) []scanner.Finding {
