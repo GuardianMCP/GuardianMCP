@@ -1,6 +1,6 @@
 package main
 
-import "github.com/seenasingh30/guardianmcp/cmd"
+import "github.com/guardianmcp/guardianmcp/cmd"
 
 func main() {
 	cmd.Execute()
