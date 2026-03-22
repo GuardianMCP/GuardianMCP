@@ -6,7 +6,7 @@ const { join } = require("path");
 const https = require("https");
 const http = require("http");
 
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 const REPO = "seenasingh30/guardianmcp";
 
 const PLATFORM_MAP = {
